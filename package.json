@@ -1,0 +1,22 @@
+{
+  "name": "dynamodb-geo-lib",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx esbuild --bundle src/*/*.js --outdir=dist --outbase=src/ --sourcemap=inline --platform=node --external:geohash --external:@aws-sdk/client-dynamodb --external:@aws-sdk/lib-dynamodb",
+    "layers-install": "cd layers/common/nodejs && npm i"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.650.0",
+    "@aws-sdk/lib-dynamodb": "^3.650.0",
+    "@aws-sdk/util-dynamodb": "^3.650.0",
+    "haversine-distance": "^1.2.3",
+    "ngeohash": "^0.6.3",
+    "uuidv4": "^6.2.13"
+  }
+}

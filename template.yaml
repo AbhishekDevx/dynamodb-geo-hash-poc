@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  dynamodb-geo-poc
+
+  Sample SAM Template for dynamodb-geo-poc
+  
+Globals:
+  Function:
+    Timeout: 3
+    Environment:
+      Variables:
+        REGION: !Ref AWS::Region
+        LOCATION_TABLE: !Ref GeoLocationTable
+
+Resources:
+  CommonLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+        LayerName: 'geo-location-poc-layer'
+        Description: Dependencies for lambda
+        ContentUri: layers/common
+        CompatibleRuntimes:
+          - nodejs16.x
+          - nodejs18.x
+          - nodejs20.x
+        LicenseInfo: 'MIT'
+        RetentionPolicy: Retain
+
+  CreateGeoItemHandler:
+    Type: AWS::Serverless::Function 
+    Properties:
+      FunctionName: "create-geo-item-handler"
+      CodeUri: dist/create-geo-item-handler
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Layers:
+        - !Ref CommonLambdaLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:*
+              Resource: "*"
+      Events:
+        ApiEvent:
+          Type: Api 
+          Properties:
+            Path: /geo
+            Method: POST
+
+  QueryGeoItemsByRadius:
+    Type: AWS::Serverless::Function 
+    Properties:
+      FunctionName: "list-geo-items-by-radius-handler"
+      CodeUri: dist/list-geo-items-by-radius-handler
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Layers:
+        - !Ref CommonLambdaLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:*
+              Resource: "*"
+      Events:
+        ApiEvent:
+          Type: Api 
+          Properties:
+            Path: /geo
+            Method: GET
+
+  GeoLocationTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: "geo-location-poc"
+      AttributeDefinitions:
+        - AttributeName: "pk"
+          AttributeType: S
+        - AttributeName: "sk"
+          AttributeType: S
+      KeySchema:
+        - AttributeName: "pk"
+          KeyType: HASH
+        - AttributeName: "sk"
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST

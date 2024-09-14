@@ -1,0 +1,1 @@
+npm run "layers-install" && npm run build && sam build && sam deploy --profile salad-days --config-env dev
